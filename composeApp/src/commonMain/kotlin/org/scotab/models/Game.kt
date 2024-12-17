@@ -1,5 +1,6 @@
 package org.scotab.models
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 
 @Serializable
 data class Game(
@@ -8,13 +9,16 @@ data class Game(
     val time: String,
     val timestamp: Long,
     val timezone: String,
+    val stage: String?,
+    val week: String?,
     val venue: String?,
-    val status: Status,
-    val league: League,
-    val country: Country,
-    val teams: Teams,
-    val scores: Scores
-)
+    val status: Map<String, String>,
+    val league: Map<String, String>,
+    val country: Map<String, String>,
+    val teams: Map<String, Map<String, String>>,
+    val scores: Map<String, Map<String, Int>>,
+
+    )
 
 @Serializable
 data class Status(
