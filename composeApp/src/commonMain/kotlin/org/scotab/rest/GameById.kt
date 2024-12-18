@@ -24,7 +24,6 @@ class GameById {
         val responseBody = response.bodyAsText()
         val jsonElement = Json.parseToJsonElement(responseBody)
         val gamesArray = jsonElement.jsonObject["response"]?.jsonArray
-        println(gamesArray)
         return gamesArray.toString()
     }
 
