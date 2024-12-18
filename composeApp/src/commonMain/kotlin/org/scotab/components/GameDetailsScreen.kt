@@ -1,5 +1,6 @@
 package org.scotab.components
 
+import CustomGameStatisticsSerializer
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -9,18 +10,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.scotab.models.GameByIdResponse
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.scotab.models.GameStatistics
 import org.scotab.rest.GameById
+import org.scotab.util.Sanitize
 
 @Composable
 fun GameDetailsScreen(gameId: Int, onBack: () -> Unit) {
-    var gameStats by remember { mutableStateOf<List<GameByIdResponse>?>(null) }
+    var gameStats by remember { mutableStateOf<List<GameStatistics>?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(gameId) {
         scope.launch {
             val gameById = GameById()
-            gameStats = gameById.getGameById(gameId)
+            val gameStatsString = gameById.getGameById(gameId)
+            val sanitizedJson = Sanitize.sanitizeResponse(gameStatsString)
+            val json = Json {
+                serializersModule = SerializersModule {
+                    contextual(CustomGameStatisticsSerializer)
+                }
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+            }
+                gameStats = json.decodeFromString(sanitizedJson)
         }
     }
 
@@ -38,16 +53,14 @@ fun GameDetailsScreen(gameId: Int, onBack: () -> Unit) {
 
         gameStats?.let { stats ->
             stats.forEach { stat ->
-                Text("Team ID: ${stat.team["id"]}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("Field Goals: ${stat.field_goals["total"]}/${stat.field_goals["attempts"]} (${stat.field_goals["percentage"]}%)")
-                Text("Three Point Goals: ${stat.threepoint_goals["total"]}/${stat.threepoint_goals["attempts"]} (${stat.threepoint_goals["percentage"]}%)")
-                Text("Free Throws: ${stat.freethrows_goals["total"]}/${stat.freethrows_goals["attempts"]} (${stat.freethrows_goals["percentage"]}%)")
-                Text("Rebounds: ${stat.rebounds["total"]} (Offense: ${stat.rebounds["offence"]}, Defense: ${stat.rebounds["defense"]})")
-                Text("Assists: ${stat.assists}")
-                Text("Steals: ${stat.steals}")
-                Text("Blocks: ${stat.blocks}")
-                Text("Turnovers: ${stat.turnovers}")
-                Text("Personal Fouls: ${stat.personal_fouls}")
+                Text("Team ID: ${stat.id}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("Name: ${stat.name}")
+                Text("Nickname: ${stat.nickname}")
+                Text("Code: ${stat.code}")
+                Text("Logo: ${stat.logo}")
+                stat.statistics.forEach { (key, value) ->
+                    Text("$key: ${value ?: "N/A"}")
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
         } ?: run {

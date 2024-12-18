@@ -1,7 +1,9 @@
 package org.scotab.components
 
+import CustomGameSerializer
+import CustomGameStatisticsSerializer
+import GameList
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,18 +17,17 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import org.scotab.models.Game
+import org.scotab.models.GameStatistics
 import org.scotab.rest.CurrentGames
 import org.scotab.util.Sanitize
-import CustomGameSerializer
-import GameList
 
 @Composable
 fun HomeScreen() {
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Today", "Yesterday", "Tomorrow")
     var games by remember { mutableStateOf<List<Game>>(emptyList()) }
     var selectedGameId by remember { mutableStateOf<Int?>(null) }
     val scope = rememberCoroutineScope()
+    var selectedTab by remember { mutableStateOf(0) }
+    val tabs = listOf("Today", "Yesterday", "Tomorrow")
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -36,9 +37,10 @@ fun HomeScreen() {
             val json = Json {
                 serializersModule = SerializersModule {
                     contextual(CustomGameSerializer)
+                    contextual(CustomGameStatisticsSerializer)
                 }
                 ignoreUnknownKeys = true
-                coerceInputValues = true
+                coerceInputValues = true // Ensure this is set to true
             }
             try {
                 games = json.decodeFromString(sanitizedJson)
@@ -56,7 +58,6 @@ fun HomeScreen() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App name
             Text(
                 text = "ScoTab",
                 fontSize = 32.sp,
@@ -66,7 +67,6 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Horizontal navigation bar
             TabRow(selectedTabIndex = selectedTab) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -86,9 +86,10 @@ fun HomeScreen() {
                                 val json = Json {
                                     serializersModule = SerializersModule {
                                         contextual(CustomGameSerializer)
+                                        contextual(CustomGameStatisticsSerializer)
                                     }
                                     ignoreUnknownKeys = true
-                                    coerceInputValues = true
+                                    coerceInputValues = true // Ensure this is set to true
                                 }
                                 try {
                                     games = json.decodeFromString(sanitizedJson)
@@ -105,7 +106,6 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Content based on selected tab
             when (selectedTab) {
                 0 -> GameList(games) { gameId -> selectedGameId = gameId }
                 1 -> GameList(games) { gameId -> selectedGameId = gameId }
