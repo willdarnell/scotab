@@ -49,10 +49,10 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation("io.ktor:ktor-client-core:2.0.0")
-                implementation("io.ktor:ktor-client-logging:2.0.0")
-                implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
-                implementation("io.ktor:ktor-client-json:2.0.0")
-                implementation("io.ktor:ktor-client-serialization:2.0.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation("io.ktor:ktor-client-cio:2.0.0") // Add this line
+                implementation("org.jetbrains.skiko:skiko:0.8.4") // Add this line
 
             }
         }

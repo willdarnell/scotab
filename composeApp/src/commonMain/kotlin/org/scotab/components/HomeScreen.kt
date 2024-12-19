@@ -2,6 +2,7 @@ package org.scotab.components
 
 import CustomGameSerializer
 import CustomGameStatisticsSerializer
+import GameDetailsScreen
 import GameList
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
